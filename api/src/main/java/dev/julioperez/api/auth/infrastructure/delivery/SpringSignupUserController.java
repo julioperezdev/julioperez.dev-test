@@ -29,7 +29,12 @@ public class SpringSignupUserController {
                 UUID.randomUUID(),
                 email,
                 "password");
-        signupInputPort.signupUser(signupRequest);
+
+        SignupRequest signupRequest2 = new SignupRequest(
+                UUID.randomUUID(),
+                "julio@email.com",
+                "951");
+        signupInputPort.signupUser(signupRequest2);
         log.info("listo");
     }
 }

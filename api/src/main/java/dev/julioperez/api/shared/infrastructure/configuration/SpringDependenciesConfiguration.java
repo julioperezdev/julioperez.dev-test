@@ -2,10 +2,15 @@ package dev.julioperez.api.shared.infrastructure.configuration;
 
 import dev.julioperez.api.auth.application.createVerificationToken.adapter.CreateVerificationTokenAdapterRepository;
 import dev.julioperez.api.auth.application.createVerificationToken.service.CreateVerificationTokenService;
+import dev.julioperez.api.auth.application.login.adapter.LoginAdapterSecurity;
 import dev.julioperez.api.auth.application.login.delivery.LoginDelivery;
 import dev.julioperez.api.auth.application.login.service.LoginService;
+import dev.julioperez.api.auth.application.modelMapper.AuthenticationResponseModelMapper;
+import dev.julioperez.api.auth.application.modelMapper.RefreshTokenModelMapper;
 import dev.julioperez.api.auth.application.modelMapper.UserModelMapper;
 import dev.julioperez.api.auth.application.modelMapper.VerificationTokenModelMapper;
+import dev.julioperez.api.auth.application.refreshToken.adapter.RefreshTokenAdapterRepository;
+import dev.julioperez.api.auth.application.refreshToken.service.RefreshTokenService;
 import dev.julioperez.api.auth.application.signup.adapter.SignupAdapterRepository;
 import dev.julioperez.api.auth.application.signup.delivery.SignupDelivery;
 import dev.julioperez.api.auth.application.signup.service.SignupService;
@@ -85,6 +90,12 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
         return new VerificationTokenModelMapper();
     }
 
+    @Bean
+    RefreshTokenModelMapper refreshTokenModelMapper(){ return new RefreshTokenModelMapper();}
+
+    @Bean
+    AuthenticationResponseModelMapper authenticationResponseModelMapper(){return new AuthenticationResponseModelMapper();}
+
     /**
      * Auth/Application/signup
      */
@@ -145,7 +156,7 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
      * Auth/Application/login
      */
 
-    /*
+
     @Bean
     public LoginAdapterSecurity loginAdapterSecurity() throws Exception {
         return new LoginAdapterSecurity(managerAuthenticator(),jwtProvider);
@@ -153,7 +164,7 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
 
     @Bean
     public LoginService loginService() throws Exception {
-        return new LoginService(loginAdapterSecurity(), loginModelMapper(), refreshTokenServiceImplementation());
+        return new LoginService(refreshTokenService(),loginAdapterSecurity(), authenticationResponseModelMapper());
     }
 
     @Bean
@@ -168,31 +179,26 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
 //        return new LoginAdapterSecurity(authenticationManagerBean(),jwtProvider);
 //    }
 
-    */
+
 
     /**
      * Auth/Application/refreshToken
      */
 
-    /*
-    @Bean
-    public RefreshTokenEndPoints refreshTokenEndPoints(){
-        return new RefreshTokenEndPoints();
-    }
 
-    @Bean
-    public RefreshTokenServiceImplementation refreshTokenServiceImplementation(){
-        return new RefreshTokenServiceImplementation(refreshTokenAdapterRepository());
-    }
+//    @Bean
+//    public RefreshTokenEndPoints refreshTokenEndPoints(){
+//        return new RefreshTokenEndPoints();
+//    }
 
     @Bean
     public RefreshTokenAdapterRepository refreshTokenAdapterRepository(){
         return new RefreshTokenAdapterRepository(refreshTokenDao, refreshTokenModelMapper());
     }
-
-
-
-*/
+    @Bean
+    public RefreshTokenService refreshTokenService(){
+        return new RefreshTokenService(refreshTokenModelMapper(),refreshTokenAdapterRepository());
+    }
 
     /**
      * Auth/Infrastructure
@@ -227,7 +233,7 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
                 .authorizeRequests()
                 .antMatchers("/api/v1/signup/**")
                 .permitAll()
-                .antMatchers("/api/login")
+                .antMatchers("/api/v1/login/**")
                 .permitAll()
                 .antMatchers("/api/currencies/**")
                 .permitAll()
