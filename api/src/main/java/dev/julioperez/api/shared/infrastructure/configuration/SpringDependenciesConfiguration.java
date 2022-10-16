@@ -21,6 +21,9 @@ import dev.julioperez.api.auth.infrastructure.repository.dao.RefreshTokenDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.UserDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.UserRolDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.VerificationTokenDao;
+import dev.julioperez.api.emailNotifier.application.sendValidateUserEmail.adapter.SendValidateUserEmailAdapter;
+import dev.julioperez.api.emailNotifier.application.sendValidateUserEmail.service.SendValidateUserEmailService;
+import dev.julioperez.api.emailNotifier.infrastructure.Gateway.SpringJavaMailer;
 import dev.julioperez.api.shared.application.encodeString.adapter.StringEncoderAdapter;
 import dev.julioperez.api.shared.application.encodeString.service.StringEncoderService;
 import dev.julioperez.api.shared.infrastructure.gateway.SpringStringEncoder;
@@ -66,8 +69,10 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtProvider jwtProvider;
+    //Email
+    private final SpringJavaMailer springJavaMailer;
 
-    public SpringDependenciesConfiguration(UserDao userDao, UserRolDao userRolDao, VerificationTokenDao verificationTokenDao, RefreshTokenDao refreshTokenDao, UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtProvider jwtProvider) {
+    public SpringDependenciesConfiguration(UserDao userDao, UserRolDao userRolDao, VerificationTokenDao verificationTokenDao, RefreshTokenDao refreshTokenDao, UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtProvider jwtProvider, SpringJavaMailer springJavaMailer) {
         this.userDao = userDao;
         this.userRolDao = userRolDao;
         this.verificationTokenDao = verificationTokenDao;
@@ -75,6 +80,7 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtProvider = jwtProvider;
+        this.springJavaMailer = springJavaMailer;
     }
 
     /**
@@ -113,6 +119,7 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
         return new SignupService(
                 signupAdapterRepository(),
                 createVerificationTokenService(),
+                sendValidateUserEmailService(),
                 stringEncoderService());
 //                signupModelMapper(),
 //                mailSenderServiceImplementation(),
@@ -266,6 +273,20 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     public ManagerAuthenticator managerAuthenticator() throws Exception {
         return new ManagerAuthenticator(authenticationManagerBean());
     }
+    /**
+     * =======================Mail======================
+     */
+
+    @Bean
+    public SendValidateUserEmailAdapter sendValidateUserEmailAdapter(){
+        return new SendValidateUserEmailAdapter(springJavaMailer);
+    }
+
+    @Bean
+    public SendValidateUserEmailService sendValidateUserEmailService(){
+        return new SendValidateUserEmailService(sendValidateUserEmailAdapter());
+    }
+
 
     /**
      * =======================Shared======================
