@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "USERS")
+@Table(schema = "AUTH", name = "USERS")
 public class UserEntity {
 
     @Id
@@ -34,7 +34,7 @@ public class UserEntity {
     private Boolean enable;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "FK_USER_ROL", nullable = false)
+    @JoinColumn(name = "FK_ID_USER_ROL", nullable = false)
     private UserRolEntity userRol;
 
 //    public UserEntity(String email, String password, Calendar created, Boolean enable, UserRolEntity userRol) {

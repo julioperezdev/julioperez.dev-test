@@ -3,14 +3,9 @@ version: '3.7'
 services:
   julioperez-database:
     container_name: julioperez-database
-    image: postgres
-    environment:
-      POSTGRES_USER: julioperezdev
-      POSTGRES_PASSWORD: openSourcePassword
-      PGDATA: /data/postgres
-      POSTGRES_DB: julioperez
+    image: viloria/julioperez-db:v1
     volumes:
-      - ./database:/data/postgres
+      - ./database/data:/pgdata
     ports:
       - "25432:5432"
     restart: unless-stopped

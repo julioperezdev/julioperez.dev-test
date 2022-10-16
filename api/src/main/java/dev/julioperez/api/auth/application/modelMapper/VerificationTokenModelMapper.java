@@ -7,12 +7,14 @@ import dev.julioperez.api.auth.infrastructure.repository.model.UserEntity;
 import dev.julioperez.api.auth.infrastructure.repository.model.VerificationTokenEntity;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 public class VerificationTokenModelMapper implements VerificationTokenMapper {
 
     @Override
     public VerificationTokenEntity toVerificationTokenEntity(VerificationToken verificationToken, UserEntity userEntity) {
         return new VerificationTokenEntity(
+                verificationToken.getId(),
                 verificationToken.getToken(),
                 userEntity,
                 verificationToken.getExpiryDate());
@@ -30,6 +32,7 @@ public class VerificationTokenModelMapper implements VerificationTokenMapper {
     @Override
     public VerificationToken toVerificationTokenModel(User user, String token) {
         return new VerificationToken(
+                UUID.randomUUID(),
                 token,
                 user.getId(),
                 Calendar.getInstance()

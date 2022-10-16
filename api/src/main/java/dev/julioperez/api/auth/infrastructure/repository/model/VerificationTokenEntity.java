@@ -3,21 +3,24 @@ package dev.julioperez.api.auth.infrastructure.repository.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.Calendar;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Entity
-@Table(name = "VERIFICATION_TOKEN")
+@Table(schema = "AUTH", name = "VERIFICATION_TOKEN")
 public class VerificationTokenEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "VERIFICATION_TOKEN_SEQUENCE")
-    @SequenceGenerator(name = "VERIFICATION_TOKEN_SEQUENCE", allocationSize = 1)
-    private Long id;
+    //@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "VERIFICATION_TOKEN_SEQUENCE")
+    //@SequenceGenerator(name = "VERIFICATION_TOKEN_SEQUENCE", allocationSize = 1)
+    @Type(type = "org.hibernate.type.UUIDCharType")
+    private UUID id;
 
     @Column(name = "TOKEN", nullable = false, unique = true)
     private String token;

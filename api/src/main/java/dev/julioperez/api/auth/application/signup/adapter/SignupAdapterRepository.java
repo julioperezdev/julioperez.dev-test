@@ -9,6 +9,7 @@ import dev.julioperez.api.auth.infrastructure.repository.model.UserEntity;
 import dev.julioperez.api.auth.infrastructure.repository.model.UserRolEntity;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class SignupAdapterRepository implements SignupOutputPort {
 
@@ -25,16 +26,23 @@ public class SignupAdapterRepository implements SignupOutputPort {
     @Override
     public User signupUser(User userToSignup) {
         UserRolEntity userRolEntityResponse = getUserRolEntityByUserToSignupIdRol(userToSignup.getIdRol());
-        if(isNotCorrectUserIdRol(userToSignup,userRolEntityResponse)) throw new RuntimeException("Cant follow process because id rol not is to normal user");
+        if(isNotCorrectUserIdRol(userToSignup,userRolEntityResponse)) throw new RuntimeException("Cant follow process because id rol not is to usual user");
         UserEntity userEntity = userMapper.userModelToUserEntity(userToSignup, userRolEntityResponse);
+        if(isErrorBecauseUserEmailWasGenerated(userToSignup.getEmail())) throw new RuntimeException(String.format("The user with email %s exist, cant be created again", userEntity.getEmail()));
         userDao.saveAndFlush(userEntity);
         if(hasUserBeenCreated(userEntity)) throw new RuntimeException("The user has not been created");
         return userMapper.userEntityToUser(userEntity);
     }
 
-    private UserRolEntity getUserRolEntityByUserToSignupIdRol(Long userIdRol){
+    private UserRolEntity getUserRolEntityByUserToSignupIdRol(UUID userIdRol){
         return userRolDao.findById(userIdRol).orElseThrow(RuntimeException::new);
     }
+
+    private boolean isErrorBecauseUserEmailWasGenerated(String userEmail){
+        UserEntity userEntity = userDao.findFirstByEmail(userEmail).orElse(null);
+        return Objects.nonNull(userEntity);
+    }
+
     private boolean isNotCorrectUserIdRol(User userToSignup, UserRolEntity userRol){
         return userToSignup.isNotEqualLikeUserIdRol(userRol.getId());
     }

@@ -21,7 +21,7 @@ public class SpringLoginUserController {
 
     @GetMapping
     public AuthenticationResponse loginUser(){
-        LoginRequest loginRequest = new LoginRequest("julio@email.com", "951");
+        LoginRequest loginRequest = new LoginRequest("jesus@email.com", "951");
         return loginInputPort.loginUser(loginRequest);
     }
 }

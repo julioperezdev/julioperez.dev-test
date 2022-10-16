@@ -1,13 +1,14 @@
 package dev.julioperez.api.auth.domain.model;
 
 import java.util.Calendar;
+import java.util.UUID;
 
 public class RefreshToken {
-    private Long id;
+    private UUID id;
     private String token;
     private Calendar createDate;
 
-    public RefreshToken(Long id, String token, Calendar createDate) {
+    public RefreshToken(UUID id, String token, Calendar createDate) {
         this.id = id;
         this.token = token;
         this.createDate = createDate;
@@ -18,11 +19,11 @@ public class RefreshToken {
         this.createDate = createDate;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

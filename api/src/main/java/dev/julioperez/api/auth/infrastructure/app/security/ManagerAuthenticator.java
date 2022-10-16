@@ -18,7 +18,7 @@ public class ManagerAuthenticator /*implements InitializingBean */{
     //private final ApplicationContext applicationContext;
 
 
-    public Authentication authenticateByEmailAndPassword(LoginRequest loginRequest){
+    public Authentication authenticateByEmailAndPassword(LoginRequest loginRequest) throws Exception{
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                 new UsernamePasswordAuthenticationToken(
                 loginRequest.email(),

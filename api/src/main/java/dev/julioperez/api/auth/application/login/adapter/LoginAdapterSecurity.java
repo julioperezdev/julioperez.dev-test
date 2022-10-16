@@ -4,10 +4,13 @@ import dev.julioperez.api.auth.domain.model.LoginRequest;
 import dev.julioperez.api.auth.domain.port.login.LoginSecurityOutputPort;
 import dev.julioperez.api.auth.infrastructure.app.security.JwtProvider;
 import dev.julioperez.api.auth.infrastructure.app.security.ManagerAuthenticator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 
 import java.util.Calendar;
+import java.util.Objects;
 
+@Slf4j
 public class LoginAdapterSecurity implements LoginSecurityOutputPort {
 
     private final ManagerAuthenticator managerAuthenticator;
@@ -21,13 +24,19 @@ public class LoginAdapterSecurity implements LoginSecurityOutputPort {
     @Override
     public String generateTokenByLoginRequest(LoginRequest loginRequest) {
         Authentication authentication = this.authenticateWithManager(loginRequest);
+        if(Objects.isNull(authentication)) throw new RuntimeException(String.format("The user %s cant do the Login process because dont have enable validation", loginRequest.email()));
         return jwtProvider.generateToken(authentication);
     }
 
     private Authentication authenticateWithManager(LoginRequest loginRequest){
-        Authentication authentication = managerAuthenticator.authenticateByEmailAndPassword(loginRequest);
-        managerAuthenticator.setAuthenticationToSecurityContext(authentication);
-        return authentication;
+        try {
+            Authentication authentication = managerAuthenticator.authenticateByEmailAndPassword(loginRequest);
+            managerAuthenticator.setAuthenticationToSecurityContext(authentication);
+            return authentication;
+        }catch (Exception exception){
+            log.error("User {} try do login but dont has been validated", loginRequest.email());
+        }
+        return null;
     }
 
     @Override

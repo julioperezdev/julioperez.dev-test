@@ -10,7 +10,7 @@ import java.util.UUID;
 public class RefreshTokenModelMapper implements RefreshTokenMapper {
     @Override
     public RefreshToken toRefreshToken() {
-        return new RefreshToken(UUID.randomUUID().toString(), Calendar.getInstance());
+        return new RefreshToken(UUID.randomUUID(),UUID.randomUUID().toString(), Calendar.getInstance());
     }
 
     @Override
@@ -20,6 +20,6 @@ public class RefreshTokenModelMapper implements RefreshTokenMapper {
 
     @Override
     public RefreshTokenEntity toRefreshTokenEntity(RefreshToken refreshToken) {
-        return new RefreshTokenEntity(refreshToken.getToken(),refreshToken.getCreateDate());
+        return new RefreshTokenEntity(refreshToken.getId(),refreshToken.getToken(),refreshToken.getCreateDate());
     }
 }

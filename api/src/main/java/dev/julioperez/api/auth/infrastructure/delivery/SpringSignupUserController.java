@@ -32,7 +32,7 @@ public class SpringSignupUserController {
 
         SignupRequest signupRequest2 = new SignupRequest(
                 UUID.randomUUID(),
-                "julio@email.com",
+                "jesus@email.com",
                 "951");
         signupInputPort.signupUser(signupRequest2);
         log.info("listo");

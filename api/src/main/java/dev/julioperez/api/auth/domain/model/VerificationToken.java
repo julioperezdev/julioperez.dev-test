@@ -5,12 +5,12 @@ import java.util.UUID;
 
 public class VerificationToken {
 
-    private Long id;
+    private UUID id;
     private String token;
     private UUID userId;
     private Calendar expiryDate;
 
-    public VerificationToken(Long id, String token, UUID userId, Calendar expiryDate) {
+    public VerificationToken(UUID id, String token, UUID userId, Calendar expiryDate) {
         this.id = id;
         this.token = token;
         this.userId = userId;
@@ -28,11 +28,11 @@ public class VerificationToken {
         this.userId = userId;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

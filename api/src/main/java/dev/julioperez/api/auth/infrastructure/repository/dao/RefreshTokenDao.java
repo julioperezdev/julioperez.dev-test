@@ -4,9 +4,10 @@ import dev.julioperez.api.auth.infrastructure.repository.model.RefreshTokenEntit
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 
-public interface RefreshTokenDao extends JpaRepository<RefreshTokenEntity, Long> {
+public interface RefreshTokenDao extends JpaRepository<RefreshTokenEntity, UUID> {
     /*
     =============================
     String querySaveRefreshToken = "EXEC saveRefreshToken @Token = :token , @CreateDate = :createdate ";

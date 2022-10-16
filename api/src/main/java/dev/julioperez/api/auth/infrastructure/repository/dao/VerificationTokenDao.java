@@ -4,8 +4,9 @@ import dev.julioperez.api.auth.infrastructure.repository.model.VerificationToken
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface VerificationTokenDao extends JpaRepository<VerificationTokenEntity, Long> {
+public interface VerificationTokenDao extends JpaRepository<VerificationTokenEntity, UUID> {
 
 
 

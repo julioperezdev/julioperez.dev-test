@@ -1,5 +1,7 @@
 package dev.julioperez.api.auth.domain.model;
 
+import dev.julioperez.api.shared.application.getProperty.service.GetPropertyService;
+
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.UUID;
@@ -11,11 +13,11 @@ public class User {
     private String email;
     private Calendar created;
     private Boolean enable;
-    private Long idRol;
+    private UUID idRol;
 
-    public static final Long USER_ID_ROL = 1L;
+    public static final UUID USER_ID_ROL = UUID.fromString(GetPropertyService.getPropertyByKey("julioperez.user.rol.uuid"));
 
-    public User(UUID id, String password, String email, Calendar created, Boolean enable, Long idRol) {
+    public User(UUID id, String password, String email, Calendar created, Boolean enable, UUID idRol) {
         this.id = id;
         this.password = password;
         this.email = email;
@@ -24,7 +26,7 @@ public class User {
         this.idRol = idRol;
     }
 
-    public User( String password, String email, Calendar created, Boolean enable, Long idRol) {
+    public User( String password, String email, Calendar created, Boolean enable, UUID idRol) {
         this.password = password;
         this.email = email;
         this.created = created;
@@ -72,15 +74,15 @@ public class User {
         this.enable = enable;
     }
 
-    public Long getIdRol() {
+    public UUID getIdRol() {
         return idRol;
     }
 
-    public void setIdRol(Long idRol) {
+    public void setIdRol(UUID idRol) {
         this.idRol = idRol;
     }
 
-    public boolean isNotEqualLikeUserIdRol(Long idRol){
+    public boolean isNotEqualLikeUserIdRol(UUID idRol){
         return !Objects.equals(USER_ID_ROL,idRol);
     }
 }
