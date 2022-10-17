@@ -10,6 +10,8 @@ import dev.julioperez.api.auth.application.modelMapper.RefreshTokenModelMapper;
 import dev.julioperez.api.auth.application.modelMapper.UserModelMapper;
 import dev.julioperez.api.auth.application.modelMapper.VerificationTokenModelMapper;
 import dev.julioperez.api.auth.application.refreshToken.adapter.RefreshTokenAdapterRepository;
+import dev.julioperez.api.auth.application.refreshToken.adapter.RefreshTokenAdapterSecurity;
+import dev.julioperez.api.auth.application.refreshToken.delivery.RefreshTokenDelivery;
 import dev.julioperez.api.auth.application.refreshToken.service.RefreshTokenService;
 import dev.julioperez.api.auth.application.signup.adapter.SignupAdapterRepository;
 import dev.julioperez.api.auth.application.signup.delivery.SignupDelivery;
@@ -97,10 +99,14 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     }
 
     @Bean
-    RefreshTokenModelMapper refreshTokenModelMapper(){ return new RefreshTokenModelMapper();}
+    RefreshTokenModelMapper refreshTokenModelMapper(){
+        return new RefreshTokenModelMapper();
+    }
 
     @Bean
-    AuthenticationResponseModelMapper authenticationResponseModelMapper(){return new AuthenticationResponseModelMapper();}
+    AuthenticationResponseModelMapper authenticationResponseModelMapper(){
+        return new AuthenticationResponseModelMapper();
+    }
 
     /**
      * Auth/Application/signup
@@ -166,17 +172,23 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
 
     @Bean
     public LoginAdapterSecurity loginAdapterSecurity() throws Exception {
-        return new LoginAdapterSecurity(managerAuthenticator(),jwtProvider);
+        return new LoginAdapterSecurity(
+                managerAuthenticator(),
+                jwtProvider);
     }
 
     @Bean
     public LoginService loginService() throws Exception {
-        return new LoginService(refreshTokenService(),loginAdapterSecurity(), authenticationResponseModelMapper());
+        return new LoginService(
+                refreshTokenService(),
+                loginAdapterSecurity(),
+                authenticationResponseModelMapper());
     }
 
     @Bean
     public LoginDelivery loginDelivery() throws Exception {
-        return new LoginDelivery(loginService());
+        return new LoginDelivery(
+                loginService());
     }
 
 
@@ -192,19 +204,32 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
      * Auth/Application/refreshToken
      */
 
-
-//    @Bean
-//    public RefreshTokenEndPoints refreshTokenEndPoints(){
-//        return new RefreshTokenEndPoints();
-//    }
-
     @Bean
     public RefreshTokenAdapterRepository refreshTokenAdapterRepository(){
-        return new RefreshTokenAdapterRepository(refreshTokenDao, refreshTokenModelMapper());
+        return new RefreshTokenAdapterRepository(
+                refreshTokenDao,
+                refreshTokenModelMapper());
     }
+
+    @Bean
+    public RefreshTokenAdapterSecurity refreshTokenAdapterSecurity(){
+        return new RefreshTokenAdapterSecurity(
+                jwtProvider);
+    }
+
     @Bean
     public RefreshTokenService refreshTokenService(){
-        return new RefreshTokenService(refreshTokenModelMapper(),refreshTokenAdapterRepository());
+        return new RefreshTokenService(
+                refreshTokenModelMapper(),
+                refreshTokenAdapterRepository(),
+                refreshTokenAdapterSecurity(),
+                authenticationResponseModelMapper());
+    }
+
+    @Bean
+    public RefreshTokenDelivery refreshTokenDelivery(){
+        return new RefreshTokenDelivery(
+                refreshTokenService());
     }
 
     /**
@@ -256,7 +281,8 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
-        authenticationManagerBuilder.userDetailsService(userDetailsService)
+        authenticationManagerBuilder
+                .userDetailsService(userDetailsService)
                 .passwordEncoder(passwordEncoder());
     }
 
@@ -271,7 +297,8 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
 
     @Bean
     public ManagerAuthenticator managerAuthenticator() throws Exception {
-        return new ManagerAuthenticator(authenticationManagerBean());
+        return new ManagerAuthenticator(
+                authenticationManagerBean());
     }
     /**
      * =======================Mail======================

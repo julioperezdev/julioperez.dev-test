@@ -17,6 +17,7 @@ import java.security.*;
 import java.security.cert.CertificateException;
 import java.sql.Date;
 import java.time.Instant;
+import java.util.Calendar;
 
 import static io.jsonwebtoken.Jwts.parser;
 import static java.sql.Timestamp.from;
@@ -101,5 +102,13 @@ public class JwtProvider {
 
     public Long getJwtExpirationInMillis() {
         return jwtExpirationInMillis;
+    }
+
+    public Calendar getCalendarWithDateOfExpiration(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Long.sum(
+                System.currentTimeMillis(),
+                getJwtExpirationInMillis()));
+        return calendar;
     }
 }
