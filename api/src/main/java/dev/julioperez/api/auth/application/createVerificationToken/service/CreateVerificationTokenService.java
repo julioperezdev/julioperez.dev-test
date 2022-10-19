@@ -19,8 +19,8 @@ public class CreateVerificationTokenService implements CreateVerificationTokenCo
     }
 
     @Override
-    public String createVerificationToken(User createdUser) {
-        String token = UUID.randomUUID().toString();
+    public UUID createVerificationToken(User createdUser) {
+        UUID token = UUID.randomUUID();
         VerificationToken verificationToken = verificationTokenMapper.toVerificationTokenModel(createdUser, token);
         verificationToken = createVerificationTokenOutputPort.createVerificationToken(verificationToken);
         return verificationToken.getToken();

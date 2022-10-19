@@ -1,29 +1,20 @@
 package dev.julioperez.api.auth.domain.model;
 
-import java.util.Calendar;
 import java.util.UUID;
 
 public class VerificationToken {
 
     private UUID id;
-    private String token;
+    private UUID token;
     private UUID userId;
-    private Calendar expiryDate;
 
-    public VerificationToken(UUID id, String token, UUID userId, Calendar expiryDate) {
+    public VerificationToken(UUID id, UUID token, UUID userId) {
         this.id = id;
         this.token = token;
         this.userId = userId;
-        this.expiryDate = expiryDate;
     }
 
-    public VerificationToken(String token, UUID userId, Calendar expiryDate) {
-        this.token = token;
-        this.userId = userId;
-        this.expiryDate = expiryDate;
-    }
-
-    public VerificationToken(String token, UUID userId) {
+    public VerificationToken(UUID token, UUID userId) {
         this.token = token;
         this.userId = userId;
     }
@@ -36,11 +27,11 @@ public class VerificationToken {
         this.id = id;
     }
 
-    public String getToken() {
+    public UUID getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(UUID token) {
         this.token = token;
     }
 
@@ -52,12 +43,5 @@ public class VerificationToken {
         this.userId = userId;
     }
 
-    public Calendar getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Calendar expiryDate) {
-        this.expiryDate = expiryDate;
-    }
 }
 

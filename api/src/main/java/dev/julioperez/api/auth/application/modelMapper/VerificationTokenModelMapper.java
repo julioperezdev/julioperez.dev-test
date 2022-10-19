@@ -16,8 +16,7 @@ public class VerificationTokenModelMapper implements VerificationTokenMapper {
         return new VerificationTokenEntity(
                 verificationToken.getId(),
                 verificationToken.getToken(),
-                userEntity,
-                verificationToken.getExpiryDate());
+                userEntity);
     }
 
     @Override
@@ -25,17 +24,14 @@ public class VerificationTokenModelMapper implements VerificationTokenMapper {
         return new VerificationToken(
                 verificationTokenEntity.getId(),
                 verificationTokenEntity.getToken(),
-                verificationTokenEntity.getUser().getId(),
-                verificationTokenEntity.getExpiryDate());
+                verificationTokenEntity.getUser().getId());
     }
 
     @Override
-    public VerificationToken toVerificationTokenModel(User user, String token) {
+    public VerificationToken toVerificationTokenModel(User user, UUID token) {
         return new VerificationToken(
                 UUID.randomUUID(),
                 token,
-                user.getId(),
-                Calendar.getInstance()
-        );
+                user.getId());
     }
 }

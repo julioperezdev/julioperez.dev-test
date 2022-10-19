@@ -8,10 +8,9 @@ import java.util.Calendar;
 public class AuthenticationResponseModelMapper implements AuthenticationResponseMapper {
 
     @Override
-    public AuthenticationResponse toAuthenticationResponse(String generatedToken, String generatedRefreshToken, Calendar generatedCalendarWithNewExpireDate) {
+    public AuthenticationResponse toAuthenticationResponse(String generatedToken,Calendar generatedCalendarWithNewExpireDate) {
         return new AuthenticationResponse(
                 generatedToken,
-                generatedRefreshToken,
                 generatedCalendarWithNewExpireDate);
     }
 }

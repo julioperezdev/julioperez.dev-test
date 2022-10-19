@@ -1,10 +1,12 @@
 package dev.julioperez.api.emailNotifier.domain.model;
 
+import java.util.UUID;
+
 public class EmailRequest {
     private String email;
-    private String token;
+    private UUID token;
 
-    public EmailRequest(String email, String token) {
+    public EmailRequest(String email, UUID token) {
         this.email = email;
         this.token = token;
     }
@@ -17,11 +19,11 @@ public class EmailRequest {
         this.email = email;
     }
 
-    public String getToken() {
+    public UUID getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(UUID token) {
         this.token = token;
     }
 }

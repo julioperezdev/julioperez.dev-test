@@ -9,6 +9,8 @@ import dev.julioperez.api.emailNotifier.domain.model.EmailRequest;
 import dev.julioperez.api.emailNotifier.domain.port.SendValidateUserEmailContract;
 import dev.julioperez.api.shared.domain.port.StringEncoderContract;
 
+import java.util.UUID;
+
 public class SignupService implements SignupContract {
 
 
@@ -31,7 +33,7 @@ public class SignupService implements SignupContract {
         User userWithEncodedPassword = encodePasswordByRegisterRequest(user);
         User createdUser = signupRepository.signupUser(userWithEncodedPassword);
         //todo: call to generateVerificationToken
-        String verificationTokenCreated = createToken.createVerificationToken(createdUser);
+        UUID verificationTokenCreated = createToken.createVerificationToken(createdUser);
         //todo: call to sentEmail
         sendValidateUserEmail.sendValidateUserEmail(new EmailRequest(createdUser.getEmail(),verificationTokenCreated));
         return null;

@@ -8,6 +8,5 @@ public interface AuthenticationResponseMapper {
 
     AuthenticationResponse toAuthenticationResponse(
             String generatedToken,
-            String generatedRefreshToken,
             Calendar generatedCalendarWithNewExpireDate);
 }

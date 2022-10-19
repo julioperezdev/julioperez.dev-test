@@ -8,6 +8,7 @@ import dev.julioperez.api.auth.domain.port.mapper.RefreshTokenMapper;
 import dev.julioperez.api.auth.domain.port.refreshToken.RefreshTokenContract;
 import dev.julioperez.api.auth.domain.port.refreshToken.RefreshTokenOutputPort;
 import dev.julioperez.api.auth.domain.port.refreshToken.RefreshTokenSecurityOutputPort;
+import dev.julioperez.api.auth.domain.port.validateToken.ValidateTokenContract;
 
 import java.util.Calendar;
 
@@ -17,12 +18,14 @@ public class RefreshTokenService implements RefreshTokenContract {
     private final RefreshTokenOutputPort refreshTokenOutputPort;
     private final RefreshTokenSecurityOutputPort refreshTokenSecurityOutputPort;
     private final AuthenticationResponseMapper authenticationResponseMapper;
+    private final ValidateTokenContract validateToken;
 
-    public RefreshTokenService(RefreshTokenMapper refreshTokenMapper, RefreshTokenOutputPort refreshTokenOutputPort,RefreshTokenSecurityOutputPort refreshTokenSecurityOutputPort, AuthenticationResponseMapper authenticationResponseMapper) {
+    public RefreshTokenService(RefreshTokenMapper refreshTokenMapper, RefreshTokenOutputPort refreshTokenOutputPort,RefreshTokenSecurityOutputPort refreshTokenSecurityOutputPort, AuthenticationResponseMapper authenticationResponseMapper,ValidateTokenContract validateToken) {
         this.refreshTokenMapper = refreshTokenMapper;
         this.refreshTokenOutputPort = refreshTokenOutputPort;
         this.refreshTokenSecurityOutputPort = refreshTokenSecurityOutputPort;
         this.authenticationResponseMapper = authenticationResponseMapper;
+        this.validateToken=validateToken;
     }
 
     @Override
@@ -32,11 +35,11 @@ public class RefreshTokenService implements RefreshTokenContract {
     }
     @Override
     public AuthenticationResponse refreshTokenByToken(RefreshTokenRequest refreshTokenRequest){
-        validateRefreshTokenByUUID(refreshTokenRequest.refreshToken());
+        //validateToken.isNotValidTokenByToken(refreshTokenRequest.refreshToken());
         String newTokenWithRefresh = refreshTokenSecurityOutputPort.generateTokeUsingEmail(refreshTokenRequest.email());
         String newRefreshToken = generateRefreshToken().getToken();
         Calendar refreshTokenDateExpiration = refreshTokenSecurityOutputPort.getCalendarWithDateOfExpiration();
-        return authenticationResponseMapper.toAuthenticationResponse(newTokenWithRefresh, newRefreshToken,refreshTokenDateExpiration);
+        return authenticationResponseMapper.toAuthenticationResponse(newTokenWithRefresh, refreshTokenDateExpiration);
     }
     private void validateRefreshTokenByUUID(String tokenToValidate){
         //try to verify that this token exist, is to same user and does have expiration

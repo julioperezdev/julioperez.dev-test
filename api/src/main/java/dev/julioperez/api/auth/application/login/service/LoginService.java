@@ -25,13 +25,10 @@ public class LoginService implements LoginContract {
     @Override
     public AuthenticationResponse loginUser(LoginRequest loginRequest) {
         String generatedToken = loginSecurity.generateTokenByLoginRequest(loginRequest);
-        String generatedRefreshToken = refreshToken.generateRefreshToken().getToken();
+        //String generatedRefreshToken = refreshToken.generateRefreshToken().getToken();
         Calendar generatedCalendarWithNewExpireDate = loginSecurity.getCalendarWithDateOfExpiration();
         return authenticationResponseMapper.toAuthenticationResponse(
                 generatedToken,
-                generatedRefreshToken,
                 generatedCalendarWithNewExpireDate);
     }
-
-
 }
