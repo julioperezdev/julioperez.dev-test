@@ -1,38 +1,34 @@
 package dev.julioperez.api.auth.infrastructure.app.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
-import java.sql.Date;
-import java.time.Instant;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.function.Function;
 
 import static io.jsonwebtoken.Jwts.parser;
-import static java.sql.Timestamp.from;
 
 @Service
+@Slf4j
 public class JwtProvider {
-
-    Logger logger = LoggerFactory.getLogger(JwtProvider.class);
-
     @Value("${jwt.secretkey.jwtSecret}")
     private String jwtSecret;
     private KeyStore keyStore;
     @Value("${jwt.expiration.time}")
     private Long jwtExpirationInMillis;
-
+    private boolean after;
 
 
     @PostConstruct
@@ -49,12 +45,14 @@ public class JwtProvider {
 
     public String generateToken(Authentication authentication){
         User principal = (User) authentication.getPrincipal();
-        System.out.println(authentication.getPrincipal());
+        log.info(authentication.getPrincipal().toString());
+        Date actualDate = new Date();
+        Date expirationDate = new Date(Long.sum(actualDate.getTime(), jwtExpirationInMillis));
         return Jwts.builder()
                 .setSubject(principal.getUsername())
-                .setIssuedAt(from(Instant.now()))
+                .setIssuedAt(actualDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .setExpiration(expirationDate)
                 .compact();
     }
 
@@ -68,17 +66,36 @@ public class JwtProvider {
 
 
     public boolean validateToken(String jwt) {
-        parser().setSigningKey(jwtSecret).parseClaimsJws(jwt);
-        return true;
+        try{
+            parser().setSigningKey(jwtSecret).parseClaimsJws(jwt);
+            return true;
+        }catch (SignatureException exception){
+            log.error("Invalid JWT signature");
+        }catch (MalformedJwtException exception){
+            log.error("Invalid JWT token");
+        }catch (ExpiredJwtException exception){
+            log.error("Expired JWT token");
+        }catch (UnsupportedJwtException exception){
+            log.error("Unsupported JWT token");
+        }catch (IllegalArgumentException exception){
+            log.error("JWT claims string is empty");
+        }
+        return false;
+    }
+
+    public boolean isNotValidTokenToRefresh(String token){
+        return (!StringUtils.hasText(token) || !validateToken(token) || isNotExpiredToken(token));
     }
 
     public String generateTokenWithUserName(String username) {
-        logger.info("genering token with username");
+        log.info("genering token with username");
+        Date actualDate = new Date();
+        Date expirationDate = new Date(Long.sum(actualDate.getTime(), jwtExpirationInMillis));
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(from(Instant.now()))
+                .setIssuedAt(actualDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .setExpiration(expirationDate)
                 .compact();
     }
 
@@ -110,5 +127,31 @@ public class JwtProvider {
                 System.currentTimeMillis(),
                 getJwtExpirationInMillis()));
         return calendar;
+    }
+
+    public Boolean isNotExpiredToken(String token){
+        Date actualDate = new Date();
+        return extractExpiration(token).after(actualDate);
+    }
+    public Boolean isExpiredToken(String token){
+        Date actualDate = new Date();
+        return extractExpiration(token).before(actualDate);
+    }
+
+
+    private java.util.Date extractExpiration(String token){
+        return extractClaims(token, Claims::getExpiration);
+    }
+
+    private <T> T extractClaims(String token , Function<Claims, T> claimsResolver){
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token){
+        return Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

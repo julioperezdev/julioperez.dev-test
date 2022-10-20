@@ -2,6 +2,10 @@ package dev.julioperez.api.shared.infrastructure.configuration;
 
 import dev.julioperez.api.auth.application.createVerificationToken.adapter.CreateVerificationTokenAdapterRepository;
 import dev.julioperez.api.auth.application.createVerificationToken.service.CreateVerificationTokenService;
+import dev.julioperez.api.auth.application.enableUser.adapter.EnableUserAdapterRepository;
+import dev.julioperez.api.auth.application.enableUser.delivery.EnableUserDelivery;
+import dev.julioperez.api.auth.application.enableUser.service.EnableUserService;
+import dev.julioperez.api.auth.application.login.adapter.LoginAdapterRepository;
 import dev.julioperez.api.auth.application.login.adapter.LoginAdapterSecurity;
 import dev.julioperez.api.auth.application.login.delivery.LoginDelivery;
 import dev.julioperez.api.auth.application.login.service.LoginService;
@@ -16,6 +20,8 @@ import dev.julioperez.api.auth.application.refreshToken.service.RefreshTokenServ
 import dev.julioperez.api.auth.application.signup.adapter.SignupAdapterRepository;
 import dev.julioperez.api.auth.application.signup.delivery.SignupDelivery;
 import dev.julioperez.api.auth.application.signup.service.SignupService;
+import dev.julioperez.api.auth.application.validateToken.adapter.ValidateTokenSecurityAdapter;
+import dev.julioperez.api.auth.application.validateToken.service.ValidateTokenService;
 import dev.julioperez.api.auth.infrastructure.app.security.JwtAuthenticationFilter;
 import dev.julioperez.api.auth.infrastructure.app.security.JwtProvider;
 import dev.julioperez.api.auth.infrastructure.app.security.ManagerAuthenticator;
@@ -158,12 +164,31 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
                 verificationTokenModelMapper());
     }
 
+
+
+
 //    @Bean
 //    public CreateVerificationTokenDelivery createVerificationTokenDelivery(){
 //        return new SignupDelivery(
 //                signupService(),
 //                userModelMapper());
 //    }
+
+    /**
+     * Auth/Application/createVerificationToken
+     */
+
+    @Bean
+    public ValidateTokenSecurityAdapter validateTokenSecurityAdapter(){
+        return new ValidateTokenSecurityAdapter(
+                jwtProvider);
+    }
+
+    @Bean
+    public ValidateTokenService validateTokenService(){
+        return new ValidateTokenService(
+                validateTokenSecurityAdapter());
+    }
 
     /**
      * Auth/Application/login
@@ -178,9 +203,14 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     }
 
     @Bean
+    public LoginAdapterRepository loginAdapterRepository(){
+        return new LoginAdapterRepository(userDao);
+    }
+
+    @Bean
     public LoginService loginService() throws Exception {
         return new LoginService(
-                refreshTokenService(),
+                loginAdapterRepository(),
                 loginAdapterSecurity(),
                 authenticationResponseModelMapper());
     }
@@ -191,13 +221,30 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
                 loginService());
     }
 
+    /**
+     * Auth/Application/enableUser
+     */
 
 
-//    @Bean
-//    public LoginAdapterSecurity loginAdapterSecurity() throws Exception {
-//        return new LoginAdapterSecurity(authenticationManagerBean(),jwtProvider);
-//    }
+    @Bean
+    public EnableUserAdapterRepository enableUserAdapterRepository(){
+        return new EnableUserAdapterRepository(
+                userDao,
+                verificationTokenDao,
+                userModelMapper());
+    }
 
+    @Bean
+    public EnableUserService enableUserService(){
+        return new EnableUserService(
+                enableUserAdapterRepository());
+    }
+
+    @Bean
+    public EnableUserDelivery enableUserDelivery(){
+        return new EnableUserDelivery(
+                enableUserService());
+    }
 
 
     /**
@@ -223,7 +270,8 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
                 refreshTokenModelMapper(),
                 refreshTokenAdapterRepository(),
                 refreshTokenAdapterSecurity(),
-                authenticationResponseModelMapper());
+                authenticationResponseModelMapper(),
+                validateTokenService());
     }
 
     @Bean
@@ -257,21 +305,28 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
 
     @Override
     public void configure(HttpSecurity httpSecurity) throws Exception {
+        //CorsConfiguration corsConfiguration = new CorsConfiguration();
+        //corsConfiguration.applyPermitDefaultValues();
         httpSecurity
                 .cors()
                 .and()
                 .csrf()
                 .disable()
+        /*
+        httpSecurity
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .cors()
+                .configurationSource(request -> corsConfiguration);
+
+         */
                 .authorizeRequests()
                 .antMatchers("/api/v1/signup/**")
                 .permitAll()
                 .antMatchers("/api/v1/login/**")
                 .permitAll()
-                .antMatchers("/api/currencies/**")
-                .permitAll()
-                .antMatchers("/api/predictor")
-                .permitAll()
-                .antMatchers("/api/decideAuth")
+                .antMatchers("/api/v1/enableUser/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated();

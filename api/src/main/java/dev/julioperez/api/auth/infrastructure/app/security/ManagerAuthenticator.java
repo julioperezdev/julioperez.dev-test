@@ -21,8 +21,8 @@ public class ManagerAuthenticator /*implements InitializingBean */{
     public Authentication authenticateByEmailAndPassword(LoginRequest loginRequest) throws Exception{
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
                 new UsernamePasswordAuthenticationToken(
-                loginRequest.email(),
-                loginRequest.password());
+                loginRequest.getEmail(),
+                loginRequest.getPassword());
         return authenticationManager.authenticate(usernamePasswordAuthenticationToken);
     }
 

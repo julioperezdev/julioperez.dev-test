@@ -1,10 +1,9 @@
 package dev.julioperez.api.auth.domain.exception;
 
-import lombok.extern.slf4j.Slf4j;
+import dev.julioperez.api.shared.domain.exception.DomainError;
 
-@Slf4j
-public class InvalidTokenToUseApi extends RuntimeException{
+public class InvalidTokenToUseApi extends DomainError {
     public InvalidTokenToUseApi() {
-        log.error("Invalid token to use, need to re-authenticate it");
+        super("Invalid token to use, need to re-authenticate it");
     }
 }
