@@ -15,10 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 @AllArgsConstructor
 public class SpringJavaMailer {
-
     private final JavaMailSender mailSender;
-    //@Value("")
-    //private final String emailFrom;
 
     public void sendMail(NotificationEmail notificationEmail){
         MimeMessagePreparator messagePreparator = mimeMessage -> {
@@ -37,6 +34,4 @@ public class SpringJavaMailer {
             throw new ErrorOccurredWhenSendingEmailException(notificationEmail.getRecipient());
         }
     }
-
-
 }
