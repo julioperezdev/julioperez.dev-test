@@ -1,14 +1,12 @@
 package dev.julioperez.api.auth.application.login.adapter;
 
+import dev.julioperez.api.auth.domain.exception.ErrorToAuthenticateWithManager;
 import dev.julioperez.api.auth.domain.model.LoginRequest;
 import dev.julioperez.api.auth.domain.port.login.LoginSecurityOutputPort;
 import dev.julioperez.api.auth.infrastructure.app.security.JwtProvider;
 import dev.julioperez.api.auth.infrastructure.app.security.ManagerAuthenticator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-
-import java.util.Calendar;
-import java.util.Objects;
 
 @Slf4j
 public class LoginAdapterSecurity implements LoginSecurityOutputPort {
@@ -24,7 +22,6 @@ public class LoginAdapterSecurity implements LoginSecurityOutputPort {
     @Override
     public String generateTokenByLoginRequest(LoginRequest loginRequest) {
         Authentication authentication = this.authenticateWithManager(loginRequest);
-        if(Objects.isNull(authentication)) throw new RuntimeException(String.format("The user %s cant do the Login process because dont have enable validation", loginRequest.email()));
         return jwtProvider.generateToken(authentication);
     }
 
@@ -34,22 +31,7 @@ public class LoginAdapterSecurity implements LoginSecurityOutputPort {
             managerAuthenticator.setAuthenticationToSecurityContext(authentication);
             return authentication;
         }catch (Exception exception){
-            log.error("User {} try do login but dont has been validated", loginRequest.email());
+            throw new ErrorToAuthenticateWithManager(loginRequest.getEmail(),exception.getMessage());
         }
-        return null;
-    }
-
-    @Override
-    public Long getJwtExpirationInMillisToAuthenticationResponse() {
-        return jwtProvider.getJwtExpirationInMillis();
-    }
-
-    @Override
-    public Calendar getCalendarWithDateOfExpiration(){
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(Long.sum(
-                System.currentTimeMillis(),
-                getJwtExpirationInMillisToAuthenticationResponse()));
-        return calendar;
     }
 }
