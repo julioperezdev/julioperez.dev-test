@@ -1,6 +1,7 @@
 package dev.julioperez.api.auth.application.createVerificationToken.adapter;
 
 import dev.julioperez.api.auth.application.modelMapper.VerificationTokenModelMapper;
+import dev.julioperez.api.auth.domain.exception.VerificationTokenHasNotBeenCreated;
 import dev.julioperez.api.auth.domain.model.VerificationToken;
 import dev.julioperez.api.auth.domain.port.createVerificationToken.CreateVerificationTokenOutputPort;
 import dev.julioperez.api.auth.infrastructure.repository.dao.UserDao;
@@ -27,11 +28,11 @@ public class CreateVerificationTokenAdapterRepository implements CreateVerificat
         UserEntity userEntity = userDao.findById(verificationToken.getUserId()).orElseThrow(RuntimeException::new);
         VerificationTokenEntity verificationTokenEntity = verificationTokenModelMapper.toVerificationTokenEntity(verificationToken, userEntity);
         verificationTokenDao.saveAndFlush(verificationTokenEntity);
-        if(hasVerificationTokenBeenCreated(verificationTokenEntity)) throw new RuntimeException("Verification token has not been created in database");
+        validateIfHasVerificationTokenBeenCreated(verificationTokenEntity);
         return verificationTokenModelMapper.toVerificationTokenModel(verificationTokenEntity);
     }
 
-    private boolean hasVerificationTokenBeenCreated(VerificationTokenEntity verificationTokenEntity){
-        return Objects.isNull(verificationTokenEntity.getId());
+    private void validateIfHasVerificationTokenBeenCreated(VerificationTokenEntity verificationTokenEntity){
+        if(Objects.isNull(verificationTokenEntity.getId())) throw new VerificationTokenHasNotBeenCreated();
     }
 }
