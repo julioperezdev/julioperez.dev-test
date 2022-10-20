@@ -39,7 +39,7 @@ public class RefreshTokenService implements RefreshTokenContract {
         String newTokenWithRefresh = refreshTokenSecurityOutputPort.generateTokeUsingEmail(refreshTokenRequest.email());
         String newRefreshToken = generateRefreshToken().getToken();
         Calendar refreshTokenDateExpiration = refreshTokenSecurityOutputPort.getCalendarWithDateOfExpiration();
-        return authenticationResponseMapper.toAuthenticationResponse(newTokenWithRefresh, refreshTokenDateExpiration);
+        return authenticationResponseMapper.toAuthenticationResponse(newTokenWithRefresh);
     }
     private void validateRefreshTokenByUUID(String tokenToValidate){
         //try to verify that this token exist, is to same user and does have expiration
