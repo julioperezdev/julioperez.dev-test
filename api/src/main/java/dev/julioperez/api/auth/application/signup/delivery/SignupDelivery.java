@@ -1,6 +1,7 @@
 package dev.julioperez.api.auth.application.signup.delivery;
 
 import dev.julioperez.api.auth.application.modelMapper.UserModelMapper;
+import dev.julioperez.api.auth.domain.exception.InvalidFieldsToSignupUserRequest;
 import dev.julioperez.api.auth.domain.model.User;
 import dev.julioperez.api.auth.domain.port.signup.SignupContract;
 import dev.julioperez.api.auth.domain.port.signup.SignupInputPort;
@@ -18,10 +19,9 @@ public class SignupDelivery implements SignupInputPort {
 
 
     @Override
-    public String signupUser(SignupRequest signupRequest) {
-        if(signupRequest.isInvalidFields()) throw new RuntimeException("Error de fields en signupUser");
+    public void signupUser(SignupRequest signupRequest) {
+        if(signupRequest.isInvalidFields()) throw new InvalidFieldsToSignupUserRequest();
         User userBeforeToSignup = userModelMapper.signupRequestToUser(signupRequest);
         signupContract.signup(userBeforeToSignup);
-        return null;
     }
 }

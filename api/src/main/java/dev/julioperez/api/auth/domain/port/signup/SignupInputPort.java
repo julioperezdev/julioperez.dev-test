@@ -4,5 +4,5 @@ import dev.julioperez.api.auth.application.signup.delivery.SignupRequest;
 
 public interface SignupInputPort {
 
-    String signupUser(SignupRequest signupRequest);
+    void signupUser(SignupRequest signupRequest);
 }

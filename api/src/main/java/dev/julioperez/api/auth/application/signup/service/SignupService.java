@@ -8,15 +8,16 @@ import dev.julioperez.api.emailNotifier.application.sendValidateUserEmail.servic
 import dev.julioperez.api.emailNotifier.domain.model.EmailRequest;
 import dev.julioperez.api.emailNotifier.domain.port.SendValidateUserEmailContract;
 import dev.julioperez.api.shared.domain.port.StringEncoderContract;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
+@Slf4j
 public class SignupService implements SignupContract {
 
 
     private final SignupOutputPort signupRepository;
     private final CreateVerificationTokenContract createToken;
-
     private final SendValidateUserEmailContract sendValidateUserEmail;
     private final StringEncoderContract stringEncoder;
 
@@ -29,14 +30,12 @@ public class SignupService implements SignupContract {
 
 
     @Override
-    public Boolean signup(User user) {
+    public void signup(User user) {
+        log.info("start signup service");
         User userWithEncodedPassword = encodePasswordByRegisterRequest(user);
         User createdUser = signupRepository.signupUser(userWithEncodedPassword);
-        //todo: call to generateVerificationToken
         UUID verificationTokenCreated = createToken.createVerificationToken(createdUser);
-        //todo: call to sentEmail
         sendValidateUserEmail.sendValidateUserEmail(new EmailRequest(createdUser.getEmail(),verificationTokenCreated));
-        return null;
     }
 
     private User encodePasswordByRegisterRequest(User userBeforeToSignup){
