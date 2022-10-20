@@ -1,5 +1,8 @@
 package dev.julioperez.api.auth.application.enableUser.adapter;
 
+import dev.julioperez.api.auth.domain.exception.UserDoesNotExist;
+import dev.julioperez.api.auth.domain.exception.UserWasEnableItBefore;
+import dev.julioperez.api.auth.domain.exception.VerificationTokenDoesNotExist;
 import dev.julioperez.api.auth.domain.model.User;
 import dev.julioperez.api.auth.domain.port.enableUser.EnableUserOutputPort;
 import dev.julioperez.api.auth.domain.port.mapper.UserMapper;
@@ -7,9 +10,11 @@ import dev.julioperez.api.auth.infrastructure.repository.dao.UserDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.VerificationTokenDao;
 import dev.julioperez.api.auth.infrastructure.repository.model.UserEntity;
 import dev.julioperez.api.auth.infrastructure.repository.model.VerificationTokenEntity;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.UUID;
 
+@Slf4j
 public class EnableUserAdapterRepository implements EnableUserOutputPort {
 
     private final UserDao userDao;
@@ -26,11 +31,10 @@ public class EnableUserAdapterRepository implements EnableUserOutputPort {
     public User enableUserByVerificationToken(UUID verificationToken) {
         VerificationTokenEntity verificationTokenEntity = verificationTokenDao
                 .findFirstByToken(verificationToken)
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(VerificationTokenDoesNotExist::new);
         UserEntity userEntity = userDao
-                .findById(verificationTokenEntity.getUser().getId())
-                .orElseThrow(RuntimeException::new);
-        if(userEntity.getEnable()) throw new RuntimeException("This user was enable it before");
+                .findById(verificationTokenEntity.getUser().getId()).orElseThrow(UserDoesNotExist::new);
+        if(userEntity.getEnable()) throw new UserWasEnableItBefore(userEntity.getEmail());
         userEntity.setEnable(Boolean.TRUE);
         userDao.save(userEntity);
         return userMapper.userEntityToUser(userEntity);
