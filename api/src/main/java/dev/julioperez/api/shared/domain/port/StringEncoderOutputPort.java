@@ -1,5 +1,7 @@
 package dev.julioperez.api.shared.domain.port;
 
+import java.util.Optional;
+
 public interface StringEncoderOutputPort {
-    String encodeString(String stringToEncode);
+    Optional<String> encodeString(String stringToEncode);
 }
