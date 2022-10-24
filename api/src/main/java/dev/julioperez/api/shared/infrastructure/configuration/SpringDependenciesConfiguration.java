@@ -29,6 +29,14 @@ import dev.julioperez.api.auth.infrastructure.repository.dao.RefreshTokenDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.UserDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.UserRolDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.VerificationTokenDao;
+import dev.julioperez.api.certificate.application.createStudentCertificate.adapter.CreateStudentCertificateAdapterRepository;
+import dev.julioperez.api.certificate.application.createStudentCertificate.delivery.CreateStudentCertificateDelivery;
+import dev.julioperez.api.certificate.application.createStudentCertificate.service.CreateStudentCertificateService;
+import dev.julioperez.api.certificate.application.generateCertificate.adapter.GenerateCertificateAdapterPdfGenerator;
+import dev.julioperez.api.certificate.application.generateCertificate.service.GenerateCertificateService;
+import dev.julioperez.api.certificate.application.modelMapper.StudentCertificateModelMapper;
+import dev.julioperez.api.certificate.infrastructure.gateway.ITextRenderPdfContract;
+import dev.julioperez.api.certificate.infrastructure.repository.dao.StudentCertificateDao;
 import dev.julioperez.api.emailNotifier.application.sendValidateUserEmail.adapter.SendValidateUserEmailAdapter;
 import dev.julioperez.api.emailNotifier.application.sendValidateUserEmail.service.SendValidateUserEmailService;
 import dev.julioperez.api.emailNotifier.infrastructure.Gateway.SpringJavaMailer;
@@ -68,8 +76,7 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
 
     @Value("${allowed.origins}")
     private String allowedOriginsUrl;
-    //Backoffice.Course
-    //Backoffice.Auth
+    //Auth
     private final UserDao userDao;
     private final UserRolDao userRolDao;
     private final VerificationTokenDao verificationTokenDao;
@@ -77,10 +84,13 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtProvider jwtProvider;
-    //Email
+    //certificate
+    private final StudentCertificateDao studentCertificateDao;
+    private final ITextRenderPdfContract iTextRenderPdfContract;
+    //emailNotifier
     private final SpringJavaMailer springJavaMailer;
 
-    public SpringDependenciesConfiguration(UserDao userDao, UserRolDao userRolDao, VerificationTokenDao verificationTokenDao, RefreshTokenDao refreshTokenDao, UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtProvider jwtProvider, SpringJavaMailer springJavaMailer) {
+    public SpringDependenciesConfiguration(UserDao userDao, UserRolDao userRolDao, VerificationTokenDao verificationTokenDao, RefreshTokenDao refreshTokenDao, UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtProvider jwtProvider, StudentCertificateDao studentCertificateDao, ITextRenderPdfContract iTextRenderPdfContract, SpringJavaMailer springJavaMailer) {
         this.userDao = userDao;
         this.userRolDao = userRolDao;
         this.verificationTokenDao = verificationTokenDao;
@@ -88,6 +98,8 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
         this.userDetailsService = userDetailsService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtProvider = jwtProvider;
+        this.studentCertificateDao = studentCertificateDao;
+        this.iTextRenderPdfContract = iTextRenderPdfContract;
         this.springJavaMailer = springJavaMailer;
     }
 
@@ -281,7 +293,7 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     }
 
     /**
-     * Auth/Infrastructure
+     * Auth/Infrastructure/app/security
      */
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
@@ -346,19 +358,76 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Auth/Infrastructure/Security
-     */
-
     @Bean
     public ManagerAuthenticator managerAuthenticator() throws Exception {
         return new ManagerAuthenticator(
                 authenticationManagerBean());
     }
     /**
-     * =======================Mail======================
+     * =============================Certificate======================
      */
 
+    /**
+     * certificate/application/modelMapper
+     */
+
+    @Bean
+    StudentCertificateModelMapper studentCertificateModelMapper(){
+        return new StudentCertificateModelMapper();
+    }
+
+    /**
+     * certificate/application/createStudentCertificate
+     */
+
+    @Bean
+    public CreateStudentCertificateAdapterRepository createStudentCertificateAdapterRepository(){
+        return new CreateStudentCertificateAdapterRepository(
+                studentCertificateDao,
+                studentCertificateModelMapper());
+    }
+
+    @Bean
+    public CreateStudentCertificateService createStudentCertificateService(){
+        return new CreateStudentCertificateService(
+                createStudentCertificateAdapterRepository(),
+                generateCertificateService());
+    }
+
+    @Bean
+    public CreateStudentCertificateDelivery createStudentCertificateDelivery(){
+        return new CreateStudentCertificateDelivery(
+                createStudentCertificateService(),
+                studentCertificateModelMapper());
+    }
+
+    /**
+     * certificate/application/createStudentCertificate
+     */
+
+    @Bean
+    public GenerateCertificateAdapterPdfGenerator generateCertificateAdapterPdfGenerator(){
+        return new GenerateCertificateAdapterPdfGenerator(
+                iTextRenderPdfContract);
+    }
+
+    @Bean
+    public GenerateCertificateService generateCertificateService(){
+        return new GenerateCertificateService(
+                generateCertificateAdapterPdfGenerator());
+    }
+
+    /**
+     * =============================Mail======================
+     */
+
+    /**
+     * emailNotifier/application/modelMapper
+     */
+
+    /**
+     * emailNotifier/application/sendValidateUserEmail
+     */
     @Bean
     public SendValidateUserEmailAdapter sendValidateUserEmailAdapter(){
         return new SendValidateUserEmailAdapter(springJavaMailer);
