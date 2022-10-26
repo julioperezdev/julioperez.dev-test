@@ -1,6 +1,5 @@
-package dev.julioperez.api.certificate.infrastructure.gateway;
+package dev.julioperez.api.certificate.infrastructure.gateway.iTextRenderPdf;
 
-import com.lowagie.text.DocumentException;
 import dev.julioperez.api.certificate.domain.model.CertificateGenerated;
 import dev.julioperez.api.certificate.domain.model.CertificateInformation;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +9,6 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +40,7 @@ public class ITextRenderPdfBuilder implements ITextRenderPdfContract {
             renderer.createPDF(fileOutputStream, false);
             renderer.finishPDF();
 
-        } catch (FileNotFoundException | DocumentException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return new CertificateGenerated(
                     certificateInformation.certificateId(),

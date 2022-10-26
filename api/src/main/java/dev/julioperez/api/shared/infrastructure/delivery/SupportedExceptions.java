@@ -1,6 +1,7 @@
 package dev.julioperez.api.shared.infrastructure.delivery;
 
 import dev.julioperez.api.auth.domain.exception.*;
+import dev.julioperez.api.certificate.domain.exception.QrBuilderCantCompleteProcess;
 import dev.julioperez.api.emailNotifier.domain.exception.ErrorOccurredWhenSendingEmailException;
 import dev.julioperez.api.shared.domain.exception.StringEncoderException;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,9 @@ public enum SupportedExceptions {
 
     //mail
     ERROR_OCCURRED_WHEN_SENDING_EMAIL(ErrorOccurredWhenSendingEmailException.class, HttpStatus.PARTIAL_CONTENT),
+
+    //certificate
+    QR_BUILDER_CANT_COMPLETE_PROCESS(QrBuilderCantCompleteProcess.class, HttpStatus.RESET_CONTENT),
 
     //shared
     STRING_ENCODER_EXCEPTION(StringEncoderException.class, HttpStatus.NOT_IMPLEMENTED);

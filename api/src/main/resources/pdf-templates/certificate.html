@@ -25,6 +25,7 @@
         }
         .backgroundImage{
             width: 17in;
+            /*height: 8in;*/
             height: 10.96in;
         }
         .studentName{
@@ -51,8 +52,23 @@
             left: 2.9in;
             font-size: 30px;
         }
+        .qrValidator{
+            position: absolute;
+            bottom: 0.5in;
+            left: 7.5in;
+            margin: 0;
+            border: 0;
+            padding: 0;
+        }
         .base{
             height: 0;
+        }
+        .qrValidatorBase{
+            height: 0;
+            background-color: yellow;
+            margin: 0;
+            border: 0;
+            padding: 0;
         }
     </style>
 </head>
@@ -65,6 +81,13 @@
         <p class="courseName" th:text="${certificateInformation.courseName}"></p>
         <p class="certificateId" th:text="${certificateInformation.certificateId}"></p>
         <p class="createdAt" th:text="${certificateInformation.formattedCreatedAt}"></p>
+<!--        <img th:src="${certificateInformation.qrValidatorPath}" alt="">-->
+<!--        <div class="qrValidatorBase">-->
+<!--            <img class="qrValidator" th:src="@{${certificateInformation.qrValidatorPath}}" />-->
+<!--        </div>-->
+    </div>
+    <div class="qrValidatorBase">
+        <img class="qrValidator" th:src="@{${certificateInformation.qrValidatorPath}}" />
     </div>
 </body>
 </html>

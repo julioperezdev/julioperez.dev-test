@@ -3,7 +3,7 @@ package dev.julioperez.api.certificate.application.generateCertificate.adapter;
 import dev.julioperez.api.certificate.domain.model.CertificateGenerated;
 import dev.julioperez.api.certificate.domain.model.CertificateInformation;
 import dev.julioperez.api.certificate.domain.port.generateCertificate.GenerateCertificateOutputPort;
-import dev.julioperez.api.certificate.infrastructure.gateway.ITextRenderPdfContract;
+import dev.julioperez.api.certificate.infrastructure.gateway.iTextRenderPdf.ITextRenderPdfContract;
 
 public class GenerateCertificateAdapterPdfGenerator implements GenerateCertificateOutputPort {
 

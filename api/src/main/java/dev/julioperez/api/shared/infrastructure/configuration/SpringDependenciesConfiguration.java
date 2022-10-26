@@ -29,13 +29,16 @@ import dev.julioperez.api.auth.infrastructure.repository.dao.RefreshTokenDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.UserDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.UserRolDao;
 import dev.julioperez.api.auth.infrastructure.repository.dao.VerificationTokenDao;
+import dev.julioperez.api.certificate.application.createQrValidator.adapter.CreateQrValidatorAdapterQrGenerator;
+import dev.julioperez.api.certificate.application.createQrValidator.service.CreateQrValidatorService;
 import dev.julioperez.api.certificate.application.createStudentCertificate.adapter.CreateStudentCertificateAdapterRepository;
 import dev.julioperez.api.certificate.application.createStudentCertificate.delivery.CreateStudentCertificateDelivery;
 import dev.julioperez.api.certificate.application.createStudentCertificate.service.CreateStudentCertificateService;
 import dev.julioperez.api.certificate.application.generateCertificate.adapter.GenerateCertificateAdapterPdfGenerator;
 import dev.julioperez.api.certificate.application.generateCertificate.service.GenerateCertificateService;
 import dev.julioperez.api.certificate.application.modelMapper.StudentCertificateModelMapper;
-import dev.julioperez.api.certificate.infrastructure.gateway.ITextRenderPdfContract;
+import dev.julioperez.api.certificate.infrastructure.gateway.iTextRenderPdf.ITextRenderPdfContract;
+import dev.julioperez.api.certificate.infrastructure.gateway.zxingQR.ZxingQrContract;
 import dev.julioperez.api.certificate.infrastructure.repository.dao.StudentCertificateDao;
 import dev.julioperez.api.emailNotifier.application.sendValidateUserEmail.adapter.SendValidateUserEmailAdapter;
 import dev.julioperez.api.emailNotifier.application.sendValidateUserEmail.service.SendValidateUserEmailService;
@@ -87,10 +90,11 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     //certificate
     private final StudentCertificateDao studentCertificateDao;
     private final ITextRenderPdfContract iTextRenderPdfContract;
+    private final ZxingQrContract zxingQrContract;
     //emailNotifier
     private final SpringJavaMailer springJavaMailer;
 
-    public SpringDependenciesConfiguration(UserDao userDao, UserRolDao userRolDao, VerificationTokenDao verificationTokenDao, RefreshTokenDao refreshTokenDao, UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtProvider jwtProvider, StudentCertificateDao studentCertificateDao, ITextRenderPdfContract iTextRenderPdfContract, SpringJavaMailer springJavaMailer) {
+    public SpringDependenciesConfiguration(UserDao userDao, UserRolDao userRolDao, VerificationTokenDao verificationTokenDao, RefreshTokenDao refreshTokenDao, UserDetailsService userDetailsService, JwtAuthenticationFilter jwtAuthenticationFilter, JwtProvider jwtProvider, StudentCertificateDao studentCertificateDao, ITextRenderPdfContract iTextRenderPdfContract, ZxingQrContract zxingQrContract, SpringJavaMailer springJavaMailer) {
         this.userDao = userDao;
         this.userRolDao = userRolDao;
         this.verificationTokenDao = verificationTokenDao;
@@ -100,6 +104,7 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
         this.jwtProvider = jwtProvider;
         this.studentCertificateDao = studentCertificateDao;
         this.iTextRenderPdfContract = iTextRenderPdfContract;
+        this.zxingQrContract = zxingQrContract;
         this.springJavaMailer = springJavaMailer;
     }
 
@@ -391,7 +396,8 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     public CreateStudentCertificateService createStudentCertificateService(){
         return new CreateStudentCertificateService(
                 createStudentCertificateAdapterRepository(),
-                generateCertificateService());
+                generateCertificateService(),
+                createQrValidatorService());
     }
 
     @Bean
@@ -415,6 +421,22 @@ public class SpringDependenciesConfiguration extends WebSecurityConfigurerAdapte
     public GenerateCertificateService generateCertificateService(){
         return new GenerateCertificateService(
                 generateCertificateAdapterPdfGenerator());
+    }
+
+    /**
+     * certificate/application/createQrValidator
+     */
+
+    @Bean
+    public CreateQrValidatorAdapterQrGenerator createQrValidatorAdapterQrGenerator(){
+        return new CreateQrValidatorAdapterQrGenerator(
+                zxingQrContract);
+    }
+
+    @Bean
+    public CreateQrValidatorService createQrValidatorService(){
+        return new CreateQrValidatorService(
+                createQrValidatorAdapterQrGenerator());
     }
 
     /**

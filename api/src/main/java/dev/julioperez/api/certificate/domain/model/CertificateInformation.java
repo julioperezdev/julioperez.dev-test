@@ -6,5 +6,6 @@ public record CertificateInformation (
         UUID certificateId,
         String studentName,
         String courseName,
-        String formattedCreatedAt){
+        String formattedCreatedAt,
+        String qrValidatorPath){
 }
